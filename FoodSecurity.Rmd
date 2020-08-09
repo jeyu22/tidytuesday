@@ -1,0 +1,141 @@
+---
+title: "FoodSecurity"
+author: 'Jessica Yu'
+date: "6/5/2020"
+output: pdf_document
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+library(RColorBrewer)
+library(treemap)
+library(readxl)
+
+Food <- read_excel("../Summer2020/Food.xlsx", sheet = 1)
+Food1 <- read_excel("../Summer2020/Food.xlsx", sheet = 2)
+Food2 <- read_excel("../Summer2020/Food.xlsx", sheet = 3)
+Food3 <- read_excel("../Summer2020/Food.xlsx", sheet = 5)
+
+Food4 <- read_excel("../Summer2020/Food.xlsx", sheet = 6)
+Food5 <- read_excel("../Summer2020/Food.xlsx", sheet = 7)
+```
+
+Data is taken from the U.S Census Bureau Household Pulse Survey. These graphs are focused on Oregon state. 
+
+(https://www.census.gov/programs-surveys/household-pulse-survey/data.html)
+```{r}
+
+ggplot(Food, aes(x = Race, fill = Time, y = Percentage)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  ylab("Percentage of Food Insufficent Households") +
+  ggtitle("Food Insufficiency for Households w/ Children Before and During COVID-19 by Race") +
+  scale_fill_manual(values = c("#c6489a", "#14b3e4", "#339052"))
+```
+
+```{r}
+
+Food1$`Food Sufficiency before Mar 13, 2020` <- factor(Food1$`Food Sufficiency before Mar 13, 2020`,
+  levels = c("Enough of the types of food wanted", 
+             "Enough food, but not always the types wanted", 
+             "Sometimes not enough to eat", "Often not enough to eat")
+)
+
+ggplot(Food1, aes(
+  x = `Food Sufficiency before Mar 13, 2020`,
+  y = Number, fill = Level
+)) +
+  geom_bar(position = "stack", stat = "identity") +
+  ylab("Number of Households") +
+  ggtitle("Current Food Insufficiency for Households with Children, by Prior Food Insufficiency") +
+  scale_fill_manual(values = c("#8dc63f", "#f37021", "#d81f26"))
+```
+```{r}
+# Build Dataset
+group <- c(rep("group-1", 4), rep("group-2", 2), rep("group-3", 3))
+subgroup <- paste("subgroup", c(1, 2, 3, 4, 1, 2, 1, 2, 3), sep = "-")
+value <- c(13, 5, 22, 12, 11, 7, 3, 1, 23)
+data <- data.frame(group, subgroup, value)
+
+# treemap
+treemap(Food2,
+  index = c("Sufficiency", "Provider of Free Groceries/Meal"),
+  vSize = "Number of Households",
+  type = "index",
+  fontcolor.labels = c("black", "white"),
+  fontface.labels = c(4, 1),
+  overlap.labels = 1,
+  align.labels = list(
+    c("left", "center"),
+    c("right", "bottom")
+  ),
+  bg.labels = 255,
+  fontsize.labels = c(13, 7),
+  palette = "Set2",
+  title = "Ways households receive free groceries/meal in last 7 days by food sufficiency level ",
+  fontsize.title = 12,
+)
+```
+
+```{r}
+ggplot(Food3, aes(x = Time, group = Status, y = Percentage, color = Status)) +
+  geom_line() +
+  ylim(0, 15) +
+  ggtitle("Households with Children Are More Likely to be Affected by Food Insecurity During Covid-19 Compared to Households without Children") +
+  geom_label(label = Food3$Percentage, hjust = 1.3, vjust = 1, nudge_x = .01)
+```
+
+```{r}
+Food4$Confidence <- factor(Food4$Confidence, levels = c("Not at all confident", 
+                                                        "Somewhat confident", 
+                                                        "Moderately confident", 
+                                                        "Very confident"))
+
+ggplot(data = Food4, aes(x = "", y = Number, fill = Prior)) +
+  geom_bar(stat = "identity", position = position_fill()) +
+  # geom_text(aes(label = Number), position = position_fill(vjust = 0.5)) +
+  coord_polar(theta = "y") +
+  facet_wrap(~Confidence) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
+  ggtitle("Households with Children's 
+            Confidence in Being Able to Afford Food For the Next Four Weeks by Prior Food Insufficiency") +
+  scale_fill_manual(values = c("#8dc63f", "#f37021", "#d81f26"))
+```
+
+```{r}
+
+Food5$Income <- factor(Food5$Income, levels = c("Less than $25,000", 
+                                                "$25,000 - $34,999", "$35,000 - $49,999", 
+                                                "$50,000 - $74,999", "$75,000 - $99,999", 
+                                                "$100,000 and above"))
+
+ggplot(Food5, aes(x = Income, fill = Time, y = Percentage)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  ylab("Percentage of Food Insufficent Households ") +
+  ggtitle("Food Insecurity for Households w/ Children Before and During the Pandemic by Income") +
+  scale_fill_manual(values = c("#14b3e4", "#339052"))
+```
+
+```{r}
+Food6 <- data.frame(
+  "Time" = c(
+    "April 2019", "January 2020",
+    "February 2020", "March 2020", "April 2020"
+  ),
+  "Households" = c("353,013", "348,930", "349,414", "361,378", "398,794")
+)
+Food6$Time <- factor(Food6$Time, levels = c(
+  "April 2019",
+  "August 2019",
+  "January 2020", "February 2020", "March 2020", "April 2020"
+))
+
+ggplot(Food6, aes(x = Time, y = Households, group = NA)) +
+  geom_path() +
+  ggtitle("Food Insecurity in Households Before and During the Pandemic")
+```
+
