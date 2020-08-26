@@ -1,0 +1,145 @@
+---
+title: "3.Sherlock Holmes Text"
+author: '""'
+date: "5/18/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r,include=FALSE}
+library(gutenbergr)
+library(tidyr) 
+library(tidytext)
+library(ggplot2)
+library(igraph)
+library(dplyr)
+library(ggraph)
+data("stop_words")
+
+
+df <- gutenberg_download((1661))
+```
+
+# Text Analysis on The Adventures of Sherlock Holmes by Sir Arthur Conan Doyle
+
+The Adventures of Sherlock Holmes contains 12 stories in the series published in 1892. 
+Analysis created using tutorials from [Text Mining with R book](https://www.tidytextmining.com/)
+
+## Single Word Analysis
+
+Let's look at the most commmonly used words, removing any common words (such as "in" or "can). The most frequent word used is "Holmes"! (Not surprising.)
+```{r,message=FALSE}
+
+tidy_adventures <- df %>%
+  select(text)%>%
+  unnest_tokens(word, text)
+  
+
+tidy_adventures <- tidy_adventures %>%
+  anti_join(stop_words)
+
+
+tidy_adventures %>%
+  count(word,sort = TRUE)%>%
+  top_n(10)%>%
+  mutate(word = reorder(word,n))%>%
+  ggplot(aes(x=word,y=n))+geom_col()+coord_flip()
+```
+
+###Sentiment analysis: 
+
+Let's see what the mood of these stories typically are using the "nrc" and "bing" packages.
+
+"Bing" categorizes words into positive/negative: There are more instances of "negative" words than "positive" ones, which makes sense given that most stories are about unpleasant crimes. The graph below shoes the words that contribute the most to positive and negative sentiment. 
+    - 
+```{r,message=FALSE}
+bing_adventures <- tidy_adventures%>%
+  inner_join(get_sentiments("bing"))%>%
+  count(word,sentiment,sort=TRUE)%>%
+  ungroup()
+
+
+bing_adventures%>%
+  count(sentiment)
+
+bing_adventures%>%
+  group_by(sentiment)%>%
+  top_n(10)%>%
+  ungroup()%>%
+  mutate(word=reorder(word,n))%>%
+  ggplot(aes(x=word,y=n,fill=sentiment))+geom_col(show.legend = FALSE)+facet_wrap(~sentiment,scales = "free_y")+coord_flip()
+```
+
+Using the "nrc" package, we can separate by more specific sentiments such as anticipation or anger.
+
+```{r,message=FALSE}
+nrc_adventures <-tidy_adventures%>%
+  inner_join(get_sentiments("nrc"))%>%
+  count(word,sentiment,sort=TRUE)%>%
+  ungroup()
+
+nrc_adventures%>%
+  count(sentiment,sort=TRUE)
+  
+nrc_adventures%>%
+  group_by(sentiment)%>%
+  top_n(5)%>%
+  ungroup()%>%
+  mutate(word=reorder(word,n))%>%
+  ggplot(aes(x=word,y=n,fill=sentiment))+geom_col()+facet_wrap(~sentiment,scales = "free_y")+coord_flip()
+
+```
+
+
+## Relationships Between Words
+
+Let's look at pairs of words, as they may be able to tell us a better story.
+
+Most common pairings seem to be the names of characters and locations specific to cases. 
+
+```{r,message=FALSE}
+adventures_bigram <- df %>%
+  select(text)%>%
+  unnest_tokens(bigram,text,token="ngrams",n=2)
+
+# remove common words
+adventures_bigram <- adventures_bigram %>%
+  separate(bigram,c("word1","word2"),sep=" ")%>%
+  filter(!word1 %in% stop_words$word )%>%
+  filter(!word2 %in% stop_words$word)
+
+adventures_bigram %>%
+  count(word1,word2,sort=TRUE)
+
+```
+
+Surprisingly the term "Watson" does not appear in the top 20 frequent bigrams. Perhaps Sherlock most frequently refers to him as "dear fellow" which comes up in the novel 8 times. When we look at the pairings that include "Watson", this may suggest that Sherlock is addressing Watson in unique ways every time. 
+
+```{r}
+adventures_bigram %>%
+  count(word1,word2,sort=TRUE)%>%
+  filter(word1 == "watson" | word2=="watson")
+```
+
+### Networks
+
+We can use a network to visualize how all words are connected with one another. 
+
+```{r,message=FALSE}
+
+adventures_graph <- adventures_bigram %>%
+  count(word1,word2,sort=TRUE)%>%
+  filter(n > 4)%>%
+  graph_from_data_frame()
+
+ggraph(adventures_graph, layout = "fr") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name), vjust = 1, hjust = 1)
+
+```
+
+
+
