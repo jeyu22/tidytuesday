@@ -1,0 +1,114 @@
+---
+title: "Crop Yields - Tidy Tuesday Week 36"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    source_code: embed
+    social: menu
+---
+    
+```{r, include=FALSE}
+library(flexdashboard)
+library(highcharter)
+library(tidyverse)
+library(mosaicData)
+data(Countries)
+
+key_crop_yields <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-09-01/key_crop_yields.csv")
+
+
+crops <- key_crop_yields %>%
+  select(-c(Code, Year)) %>%
+  group_by(Entity) %>%
+  summarise_at(vars(-group_cols()), sum, na.rm = TRUE) %>%
+  mutate(total = rowSums(.[, 2:12]))
+
+crops <- rename(crops, Country = Entity)
+
+crops$Country[crops$Country == "Tanzania"] <- "United Republic of Tanzania"
+crops$Country[crops$Country == "Iran"] <- "Iran (Islamic Republic of)"
+
+crops <- crops %>%
+  inner_join(Countries, by = c("Country" = "maptools"))
+```
+
+Column 
+-------------------------------------
+
+### Total Key Crop Yield (Wheat, Rice, Maize, Soybeans, Potatoes, Beans, Peas, Cassava, Barley, Cocoa, and Bananas) Across the World Since 1961
+
+```{r}
+crops$Country[crops$Country == "United States"] <- "United States of America"
+crops$Country[crops$Country == "Congo"] <- "Democratic Republic of the Congo"
+crops$Country[crops$Country == "Iran (Islamic Republic of)"] <- "Iran"
+hcmap(
+  "custom/world-robinson-lowres",
+  data = crops,
+  name = "Total Key Crop Yield (tonnes per hectare)",
+  value = "total",
+  borderWidth = 0,
+  nullColor = "#d3d3d3",
+  joinBy = c("name", "Country")
+) %>%
+  hc_add_theme(hc_theme_elementary())
+```
+
+    
+Column {.tabset .tabset-fade} 
+-------------------------------------
+   
+### Key Crop Yield Growth Over Time
+
+```{r}
+top5 <- crops %>%
+  arrange(desc(total)) %>%
+  head(5)
+
+top5countries <- key_crop_yields %>%
+  filter(Entity %in% top5$Country) %>%
+  select(-Code) %>%
+  mutate(total = rowSums(.[, 2:12], na.rm = TRUE))
+
+hchart(top5countries, "line", hcaes(x = Year, y = total, group = Entity)) %>%
+  hc_add_theme(hc_theme_elementary())
+```   
+
+### Top Wheat Producers from 1961 to 2018
+
+```{r}
+wheat <- key_crop_yields %>%
+  filter(Entity %in% crops$Country) %>%
+  pivot_wider(names_from = Year, values_from = `Wheat (tonnes per hectare)`) %>%
+  group_by(Entity) %>%
+  select(-Code) %>%
+  summarise_at(vars(-group_cols()), sum, na.rm = TRUE) %>%
+  mutate(total = rowSums(.[, 12:69])) %>%
+  rename(Country = Entity)
+
+
+hchart(wheat %>% arrange(desc(total)) %>% head(10), "dumbbell", hcaes(x = Country, low = `1961`, high = `2018`)) %>%
+  hc_add_theme(hc_theme_elementary()) %>%
+  hc_annotations(
+    list(
+      labelOptions = list(y = 10, x = 200),
+      labels = list(
+        list(
+          point = list(
+            x = 50,
+            y = 10, yAxis = 0
+          ),
+          text = "Black: wheat production in 1961;
+          Blue: wheat production in 2018"
+        )
+      )
+    )
+  )
+```
+
+
+### Top Rice Producers
+
+```{r}
+hchart(crops %>% arrange(desc(`Rice (tonnes per hectare)`)) %>% head(10), "bar", hcaes(x = Country, y = `Rice (tonnes per hectare)`))
+```
+
