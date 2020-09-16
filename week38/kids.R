@@ -22,5 +22,9 @@ ggplot(kids, aes(year, inf_adj_perchild, color = variable)) +
     subtitle = "Data from Urban Institute; Healthcare Excludes Medicare Spending ",
     color = "Variable"
   ) +
-  theme(plot.background = element_rect(fill = "lightblue"))
+  theme(plot.background = element_rect(fill = "lightblue"),
+        legend.background = element_rect(fill="lightblue"),
+        text = element_text(size=10),
+        axis.text.x = element_text(size=6),
+        axis.text.y = element_text(size=6))
 
