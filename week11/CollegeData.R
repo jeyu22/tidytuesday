@@ -20,3 +20,5 @@ states_colleges <- colleges %>%
 faces(states_colleges[,2:5],labels=states_colleges$state_code,main="College In-State and Out-of-State Tuition by State")
          
 faces(states_colleges[,6:9],labels=states_colleges$state_code,main="College Outcomes (Career Pay) by State")
+
+
