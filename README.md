@@ -6,6 +6,8 @@ Week11: College Outcomes
 
 ![Week11](/week11/CollegeOutcomes.png?raw=true "Week11")
 
+Chernoff graphs can't tell a lot, but they're so fun to look at!
+
 Week28: Coffee Ratings
 
 ![Week28](/week28/coffee.png?raw=true "Optional Title")
