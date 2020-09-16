@@ -23,3 +23,4 @@ ggplot(kids, aes(year, inf_adj_perchild, color = variable)) +
     color = "Variable"
   ) +
   theme(plot.background = element_rect(fill = "lightblue"))
+
