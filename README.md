@@ -13,3 +13,7 @@ Week28: Coffee Ratings
 Week36: Crop Yields
 
 ![Week36](/week36/CropYields.png?raw=true "Optional Title")
+
+Week38: Kids
+
+![Week38](/week38/kids.png?raw=true "Optional Title")
