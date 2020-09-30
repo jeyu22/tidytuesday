@@ -17,3 +17,9 @@ Week36: Crop Yields
 Week38: Kids
 
 ![Week38](/week38/kids.png?raw=true "Optional Title")
+
+
+Week40: Taylor Swift
+
+
+![Week40](/week40/taylorswift.gif?raw=true "Optional Title")
