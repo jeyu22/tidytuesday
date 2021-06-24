@@ -1,0 +1,44 @@
+---
+title: "Untitled"
+author: '""'
+date: "6/19/2021"
+output: html_document
+---
+
+
+
+```{r}
+# money, prob
+# money transf
+m <- 20.35
+log(m+2)
+# prob transf
+p <- 11/24
+(p^.5) / (((p^.5)+(1-p)^.5))^.5
+
+choicea1_ <- 3.311637
+choicea2_ <- 0.4594503
+choiceb1_ <- 3.264232
+choiceb2_ <- .4890259
+
+choicec1_<-3.214466
+choicec2_<- 0.5170063
+
+choiced1_<- 3.162094
+choiced2_<- 0.5437495
+
+choicee1_<- 3.106826
+choicee2_<- 0.5695374
+
+
+
+
+
+power_sim <- grid_search(func = decision, params=list(bac=seq(.001,.2,.02),tt = 0),choicex=choicea,choicey=choiceb, 
+                         pr = .8 , output = "data.frame")
+
+power_sim$test
+power_sim$results %>% arrange(desc(output))
+
+```
+
