@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/655969/d59dd109cd4c470eab4fef133c836d7d
+bundleId: https://api.rpubs.com/api/v1/document/655969/d59dd109cd4c470eab4fef133c836d7d
+url: http://rpubs.com/jessicayu2613/655969
+when: 1599190078.55829

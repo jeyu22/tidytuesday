@@ -1,0 +1,77 @@
+---
+title: "tidywednesday"
+author: '""'
+date: "3/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+
+covid19 <- readr::read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.csv')
+
+library(plotly)
+library(tidyverse)
+
+covid19_1 <- covid19 %>%
+  select(location,iso_code,people_vaccinated_per_hundred) %>%
+  group_by(location,iso_code) %>%
+  summarise(N=n(), med_vax = median(people_vaccinated_per_hundred, na.rm = TRUE))
+  
+covid19_1
+```
+
+```{r}
+g <- list(
+  showframe = FALSE,
+  scope = "world",
+  showcoastlines = FALSE,
+  projection = list(type = 'Mercator')
+)
+
+fig <- plot_geo(covid19_1)
+
+plot_ly(covid19_1, type="scatter")
+
+fig
+
+fig <- fig %>% add_trace(
+    z = ~GDP..BILLIONS., color = ~GDP..BILLIONS., colors = 'Blues',
+    text = ~COUNTRY, locations = ~CODE, marker = list(line = l)
+  )
+fig <- fig %>% colorbar(title = 'GDP Billions US$', tickprefix = '$')
+fig <- fig %>% layout(
+    title = '2014 Global GDP<br>Source:<a href="https://www.cia.gov/library/publications/the-world-factbook/fields/2195.html">CIA World Factbook</a>',
+    geo = g
+  )
+
+fig <- plot_ly()
+fig <- fig %>% add_trace(
+    type="choropleth",
+    geojson=covid19_1$iso_code,
+    locations=covid19_1$iso_code,
+    colorscale="Viridis",
+    marker=list(line=list(
+      width=0)
+    )
+  )
+
+fig
+
+
+world_map <- map_data("world")
+
+world_map <- map_data("world")
+
+data <- world_map %>%
+  left_join(covid19_1, c("region"="location")) 
+
+data$med_vax<- data$med_vax%>%
+  replace_na(0)
+            
+
+
+ggplot(data, aes(x = long, y = lat, group = group, fill = log10(med_vax))) +
+  geom_polygon(colour = "white") +theme_void()+ggtitle("Median Vaccination Rates for Some Countries..")
+```
+

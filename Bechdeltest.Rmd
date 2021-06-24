@@ -1,0 +1,58 @@
+---
+title: "IMDB movies"
+author: '""'
+date: "4/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(mosaic)
+raw_bechdel <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-09/raw_bechdel.csv')
+movies <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-09/movies.csv')
+
+```
+
+
+# Proportion of movies that fail the Bechdel Test?
+
+```{r}
+tally(movies$binary)
+991/(991+803)
+```
+
+#
+```{r}
+'%!in%' <- function(x,y)!('%in%'(x,y))
+
+movies_filtered <- movies %>%
+  filter(str_detect(country,",") == FALSE) %>%
+  select(country,binary)
+
+movies_data<-movies_filtered %>%
+  group_by(country,binary) %>%
+  summarize(n = n())
+
+reorder(Genotype, desc(Freq_1)
+        
+ggplot(data = new_data, aes(x = reorder(newcol,desc(freq)), y = freq , fill = binary ))+ 
+    geom_bar(position="stack", stat = "identity") + ylab("Percentage")+ theme(axis.text.x = element_text(angle = 60, hjust = 1)) + xlab("Country") + ggtitle("Proportion of Movies That Pass the Bechdel Test by Country")
+
+
+```
+
+```{r}
+new_data<-movies %>%
+       mutate(newcol= strsplit(as.character(country), ",")) %>%
+       unnest() %>%
+       filter(newcol != "")  %>%
+  select(newcol, binary) %>%
+  group_by(newcol,binary) %>%
+  summarise(n = n())  %>%
+  mutate(freq = n/sum(n)) %>%
+  arrange(desc(freq))
+
+
+
+```
+
