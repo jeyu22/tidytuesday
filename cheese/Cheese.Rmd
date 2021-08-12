@@ -22,18 +22,18 @@ cheese <-tuesdata$clean_cheese
 cheese <-cheese %>%
   select(Year,Cheddar,Mozzarella,Swiss,Muenster)
 
-imgs <- data.frame(images = list.files("~/tidytuesday/cheese/pics"))
+#imgs <- data.frame(images = list.files("~/tidytuesday/cheese/pics"))
 
 new_cheese <- gather(cheese, key = "cheese_type",value = "consumption",-Year)
 
-magick::image_read(list.files("~/tidytuesday/cheese/pics"))
+#magick::image_read(list.files("~/tidytuesday/cheese/pics"))
 
 back <- readPNG("~/tidytuesday/cheese/717964-middle.png")
 
-imgs$name <- c("Mozzarella","Muenster","Cheddar","Swiss")
+#imgs$name <- c("Mozzarella","Muenster","Cheddar","Swiss")
 
-new_cheese <- new_cheese %>%
-  left_join(imgs,by = c("cheese_type"= "name"))
+#new_cheese <- new_cheese %>%
+  #left_join(imgs,by = c("cheese_type"= "name"))
 
 ggplot(data = new_cheese, aes(x = Year, y =consumption, color = cheese_type)) +  
   #geom_image(aes(image=new_cheese$images), size=.1, by = "height") + 
@@ -41,9 +41,9 @@ ggplot(data = new_cheese, aes(x = Year, y =consumption, color = cheese_type)) +
   theme_classic() + annotation_custom(rasterGrob(back, 
                                width = unit(1,"npc"),
                                height = unit(1,"npc")), 
-                    -Inf, Inf, -Inf, Inf) +geom_point() + ggtitle("Cheese Consumption Over Time") + ylab("Consumption (lbs per person)")
+                    -Inf, Inf, -Inf, Inf) +geom_point() + ggtitle("Cheese Consumption Over Time") + ylab("Consumption (lbs per person)") 
 
-cheese_plot
+
 
 ```
 
